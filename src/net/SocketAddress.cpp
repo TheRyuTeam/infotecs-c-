@@ -1,6 +1,5 @@
 #include "SocketAddress.h"
 #include "NetException.h"
-#include <ws2tcpip.h>
 
 SocketAddress::SocketAddress()
     : _addr()
