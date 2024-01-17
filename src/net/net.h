@@ -15,6 +15,9 @@
 #	include <Ws2tcpip.h>
 
 using socket_t = SOCKET;
+
+constexpr socket_t kInvalidSocket = INVALID_SOCKET;
+
 inline int net_last_error()
 {
 	return WSAGetLastError();
@@ -25,6 +28,8 @@ inline int net_last_error()
 #   include <cerrno>
 
 using socket_t = int;
+
+constexpr socket_t kInvalidSocket = -1;
 
 inline int net_last_error()
 {

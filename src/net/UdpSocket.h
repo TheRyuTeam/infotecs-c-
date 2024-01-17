@@ -4,8 +4,8 @@
 class UdpSocket
 {
 public:
-    UdpSocket(socket_t socket = INVALID_SOCKET);
-    UdpSocket(int domain, int protocol = 0);
+    UdpSocket(socket_t socket = kInvalidSocket);
+    UdpSocket(int domain, int protocol);
 
     ~UdpSocket();
 

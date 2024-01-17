@@ -80,7 +80,7 @@ UdpSocket::~UdpSocket()
 
 void UdpSocket::bind(const SocketAddress& address)
 {
-    if (_socket == INVALID_SOCKET) {
+    if (_socket == kInvalidSocket) {
         _socket = netOpenSocket(address.family(), SOCK_DGRAM, 0);
     }
 

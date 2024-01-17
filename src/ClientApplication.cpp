@@ -3,7 +3,7 @@
 
 ClientApplication::ClientApplication(const SocketAddress& address, const IErrorProcessor::Ptr& errorProcessor)
     : _address(address)
-    , _socket(address.family())
+    , _socket(address.family(), 0)
     , _senderThread()
     , _mutex()
     , _condition()
