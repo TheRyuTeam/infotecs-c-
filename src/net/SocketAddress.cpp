@@ -1,5 +1,6 @@
 #include "SocketAddress.h"
 #include "NetException.h"
+#include <cstring>
 
 SocketAddress::SocketAddress()
     : _addr()
@@ -14,15 +15,6 @@ SocketAddress::SocketAddress(const sockaddr* addr, int len)
     }
 
     memcpy(&_addr, addr, len);
-}
-
-SocketAddress::SocketAddress(uint32_t addr, unsigned short port)
-    : _addr()
-{
-    _addr.sa_family = AF_INET;
-    auto pCast = asV4();
-    pCast->sin_port = htons(port);
-    pCast->sin_addr.S_un.S_addr = addr;
 }
 
 SocketAddress::SocketAddress(const char* address, unsigned short port)

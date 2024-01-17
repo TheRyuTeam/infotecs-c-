@@ -6,8 +6,7 @@ class SocketAddress
 {
 public:
 	SocketAddress();
-	SocketAddress(const sockaddr* addr, int len);
-	SocketAddress(uint32_t addr, unsigned short port);
+    SocketAddress(const sockaddr* addr, int len);
 	SocketAddress(const char* address, unsigned short port);
 	SocketAddress(const std::string& address, unsigned short port);
 	SocketAddress(const SocketAddress&) = default;
