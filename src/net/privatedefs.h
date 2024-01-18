@@ -48,6 +48,7 @@
 
 #else
 
+#include <unistd.h>
 #include <arpa/inet.h>
 
 #define NET_EINTR           EINTR
