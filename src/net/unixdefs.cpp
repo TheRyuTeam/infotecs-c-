@@ -24,7 +24,7 @@ socket_t openSocket(int domain, int type, int protocol)
     return ::socket(domain, type, protocol);
 }
 
-socket_t closeSocket(socket_t socket)
+void closeSocket(socket_t socket)
 {
     close(socket);
 }
