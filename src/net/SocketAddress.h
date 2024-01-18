@@ -1,9 +1,9 @@
 #pragma once
 #include "net.h"
 #include <string>
+#include <cstdint>
 
 NET_START
-
 
 class SocketAddress
 {
