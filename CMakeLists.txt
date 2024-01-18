@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 
 file(GLOB_RECURSE NET_SOURCES "src/*.h" "src/*.cpp")
 add_library(net STATIC ${NET_SOURCES})
-target_link_libraries(net
-    PRIVATE ws2_32
-)
+if(WIN32)
+    target_link_libraries(net
+        PRIVATE ws2_32
+    )
+endif()
 
 add_executable(client client.cpp)
 target_link_libraries(client
