@@ -18,7 +18,7 @@ UdpSocket::UdpSocket(int domain, int protocol)
 UdpSocket::~UdpSocket()
 {
     net::closeSocket(_socket);
-    _socket = INVALID_SOCKET;
+    _socket = kInvalidSocket;
 }
 
 void UdpSocket::bind(const SocketAddress& address)
