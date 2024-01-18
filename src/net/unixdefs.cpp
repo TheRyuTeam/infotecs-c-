@@ -1,5 +1,5 @@
 #include "unixdefs.h"
-#include "net.h"
+#include "privatedefs.h"
 
 #ifndef _WIN32
 #include <cerrno>
@@ -16,7 +16,7 @@ void uninitialize()
 
 int error()
 {
-    return errno
+    return errno;
 }
 
 socket_t openSocket(int domain, int type, int protocol)

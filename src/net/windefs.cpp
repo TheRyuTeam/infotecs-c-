@@ -1,9 +1,9 @@
 #include "windefs.h"
 #include "net.h"
 #include "NetException.h"
+#include "privatedefs.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
 
 NET_START
 
