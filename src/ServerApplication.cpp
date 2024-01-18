@@ -1,7 +1,7 @@
 #include "ServerApplication.h"
 #include <iostream>
 
-ServerApplication::ServerApplication(const SocketAddress& address)
+ServerApplication::ServerApplication(const net::SocketAddress& address)
     : _socket()
     , _working(false)
 {
@@ -23,7 +23,7 @@ void ServerApplication::receiverThreadFunc()
 {
     while (_working) {
         char data[128]{};
-        SocketAddress address;
+        net::SocketAddress address;
         int rc = _socket.recieveBytesFrom(data, sizeof(data), address);
         _socket.sendBytesTo("K", 1, address);
         if (rc % 2 == 0 && rc % 32 == 0) {

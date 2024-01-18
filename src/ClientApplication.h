@@ -8,7 +8,7 @@
 class ClientApplication
 {
 public:
-    ClientApplication(const SocketAddress& address, const IErrorProcessor::Ptr& errorProcessor);
+    ClientApplication(const net::SocketAddress& address, const IErrorProcessor::Ptr& errorProcessor);
     ~ClientApplication();
 
     void run();
@@ -22,8 +22,8 @@ private:
     void error(const std::string& msg);
 
 private:
-    SocketAddress _address;
-    UdpSocket _socket;
+    net::SocketAddress _address;
+    net::UdpSocket _socket;
     std::thread _senderThread;
     std::mutex _mutex;
     std::condition_variable _condition;

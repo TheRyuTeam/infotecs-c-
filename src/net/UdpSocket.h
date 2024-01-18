@@ -1,5 +1,8 @@
 #pragma once
 #include "SocketAddress.h"
+#include "defs.h"
+
+NET_START
 
 class UdpSocket
 {
@@ -20,3 +23,5 @@ private:
 	socket_t _socket;
 	bool _blocking;
 };
+
+NET_END

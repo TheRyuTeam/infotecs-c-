@@ -1,65 +1,8 @@
 #include "UdpSocket.h"
 #include "NetException.h"
-#include <atomic>
+#include "privatedefs.h"
 
-#ifdef _WIN32
-static std::atomic<std::size_t> WSA_INIT_COUNTER;
-static WSAData WSA_DATA;
-
-void wsaStart()
-{
-	if (WSA_INIT_COUNTER++ > 0) {
-		return;
-	}
-
-	if (WSAStartup(MAKEWORD(2, 2), &WSA_DATA) != 0) {
-		throw WSAInitError("Can not initialize wsa", net_last_error());
-	}
-}
-
-void wsaStop()
-{
-	if (--WSA_INIT_COUNTER >= 0) {
-		return;
-	}
-
-	if (WSACleanup() != 0) {
-		throw WSACleanupError("Can not clean wsa", net_last_error());
-	}
-}
-
-socket_t netOpenSocket(int domain, int type, int protocol)
-{
-	wsaStart();
-	return ::socket(domain, type, protocol);
-}
-
-void netCloseSocket(socket_t socket)
-{
-	if (socket == INVALID_SOCKET) {
-		return;
-	}
-
-	closesocket(socket);
-	wsaStop();
-}
-#else
-socket_t netOpenSocket(int domain, int type, int protocol)
-{
-    return ::socket(domain, type, protocol);
-}
-
-void netCloseSocket(socket_t socket)
-{
-    if (socket == INVALID_SOCKET) {
-        return;
-    }
-
-    close(socket);
-}
-
-#endif
-
+NET_START
 
 UdpSocket::UdpSocket(socket_t socket)
 	: _socket(socket)
@@ -68,24 +11,24 @@ UdpSocket::UdpSocket(socket_t socket)
 }
 
 UdpSocket::UdpSocket(int domain, int protocol)
-    : UdpSocket(netOpenSocket(domain, SOCK_DGRAM, protocol))
+    : UdpSocket(net::openSocket(domain, SOCK_DGRAM, protocol))
 {
 }
 
 UdpSocket::~UdpSocket()
 {
-    netCloseSocket(_socket);
+    net::closeSocket(_socket);
     _socket = INVALID_SOCKET;
 }
 
 void UdpSocket::bind(const SocketAddress& address)
 {
     if (_socket == kInvalidSocket) {
-        _socket = netOpenSocket(address.family(), SOCK_DGRAM, 0);
+        _socket = net::openSocket(address.family(), SOCK_DGRAM, 0);
     }
 
-	if (::bind(_socket, address.addr(), address.len()) != 0) {
-		error(net_last_error(), address.toString());
+    if (::bind(_socket, (const sockaddr*)address.addr(), address.len()) != 0) {
+        error(net::error(), address.toString());
 	}
 }
 
@@ -93,12 +36,12 @@ int UdpSocket::sendBytesTo(const char* data, int size, const SocketAddress& addr
 {
 	int rc;
 	do {
-        rc = ::sendto(_socket, data, size, 0, address.addr(), address.len());
-    } while (rc < 0 && net_last_error() == WSAEINTR);
+        rc = ::sendto(_socket, data, size, 0, (const sockaddr*)address.addr(), address.len());
+    } while (rc < 0 && net::error() == NET_EINTR);
 
 	if (rc < 0) {
-		int err = net_last_error();
-        if (err != WSAEWOULDBLOCK) {
+        int err = net::error();
+        if (err != NET_EAGAIN) {
 			error(err);
 		}
 	}
@@ -113,16 +56,16 @@ int UdpSocket::recieveBytesFrom(char* data, int maxSize, SocketAddress& address)
 	int rc;
 	do {
         rc = ::recvfrom(_socket, data, maxSize, 0, &addr, &len);
-    } while (rc < 0 && net_last_error() == WSAEINTR);
+    } while (rc < 0 && net::error() == NET_EINTR);
 
 	if (rc < 0) {
-		int err = net_last_error();
-        if (err != WSAEWOULDBLOCK) {
+        int err = net::error();
+        if (err != NET_EAGAIN) {
 			error(err);
 		}
 	}
 
-    address = SocketAddress(&addr, len);
+    address = SocketAddress::fromBuiltIn(&addr, len);
     return rc;
 }
 
@@ -132,77 +75,77 @@ void UdpSocket::error(int code, const std::string& arg)
 	{
 		case 0:
 			return;
-        case WSASYSNOTREADY:
+        case NET_ESYSNOTREADY:
 			throw NetException("Net subsystem not ready", code);
-        case WSANOTINITIALISED:
+        case NET_NOTINITIALISED:
 			throw NetException("Net subsystem not initialized", code);
-        case WSAEINTR:
+        case NET_EINTR:
 			throw IOException("Interrupted", code);
-        case WSAEACCES:
+        case NET_EACCES:
 			throw IOException("Permission denied", code);
-        case WSAEFAULT:
+        case NET_EFAULT:
 			throw IOException("Bad address", code);
-        case WSAEINVAL:
+        case NET_EINVAL:
 			throw InvalidArgumentException("Invalid argument", code);
-        case WSAEMFILE:
+        case NET_EMFILE:
 			throw IOException("Too many open files", code);
-        case WSAEWOULDBLOCK:
+        case NET_EWOULDBLOCK:
 			throw IOException("Operation would block", code);
-        case WSAEINPROGRESS:
+        case NET_EINPROGRESS:
 			throw IOException("Operation now in progress", code);
-        case WSAEALREADY:
+        case NET_EALREADY:
 			throw IOException("Operation already in progress", code);
-        case WSAENOTSOCK:
+        case NET_ENOTSOCK:
 			throw IOException("Socket operation attempted on non-socket", code);
-        case WSAEDESTADDRREQ:
+        case NET_EDESTADDRREQ:
 			throw NetException("Destination address required", code);
-        case WSAEMSGSIZE:
+        case NET_EMSGSIZE:
 			throw NetException("Message too long", code);
-        case WSAEPROTOTYPE:
+        case NET_EPROTOTYPE:
 			throw NetException("Wrong protocol type", code);
-        case WSAENOPROTOOPT:
+        case NET_ENOPROTOOPT:
 			throw NetException("Protocol not available", code);
-        case WSAEPROTONOSUPPORT:
+        case NET_EPROTONOSUPPORT:
 			throw NetException("Protocol not supported", code);
-        case WSAESOCKTNOSUPPORT:
+        case NET_ESOCKTNOSUPPORT:
 			throw NetException("Socket type not supported", code);
-        case WSAEOPNOTSUPP:
+        case NET_ENOTSUP:
 			throw NetException("Operation not supported", code);
-        case WSAEPFNOSUPPORT:
+        case NET_EPFNOSUPPORT:
 			throw NetException("Protocol family not supported", code);
-        case WSAEAFNOSUPPORT:
+        case NET_EAFNOSUPPORT:
 			throw NetException("Address family not supported", code);
-        case WSAEADDRINUSE:
+        case NET_EADDRINUSE:
 			throw NetException(arg + " already in use", code);
-        case WSAEADDRNOTAVAIL:
+        case NET_EADDRNOTAVAIL:
 			throw NetException("Cannot assign " + arg, code);
-        case WSAENETDOWN:
+        case NET_ENETDOWN:
 			throw NetException("Network is down", code);
-        case WSAENETUNREACH:
+        case NET_ENETUNREACH:
 			throw NetException("Network is unreachable", code);
-        case WSAENETRESET:
+        case NET_ENETRESET:
 			throw NetException("Network dropped connection on reset", code);
-        case WSAECONNABORTED:
+        case NET_ECONNABORTED:
 			throw ConnectionAbortedException("Connection aborted", code);
-        case WSAECONNRESET:
+        case NET_ECONNRESET:
 			throw ConnectionResetException("Connection reset", code);
-        case WSAENOBUFS:
+        case NET_ENOBUFS:
 			throw IOException("No buffer space available", code);
-        case WSAEISCONN:
+        case NET_EISCONN:
 			throw NetException("Socket is already connected", code);
-        case WSAENOTCONN:
+        case NET_ENOTCONN:
 			throw NetException("Socket is not connected", code);
-        case WSAESHUTDOWN:
+        case NET_ESHUTDOWN:
 			throw NetException("Cannot send after socket shutdown", code);
-        case WSAETIMEDOUT:
+        case NET_ETIMEDOUT:
 			throw TimeoutException("Timeout", code);
-        case WSAECONNREFUSED:
+        case NET_ECONNREFUSED:
 			throw ConnectionRefusedException(arg, code);
-        case WSAEHOSTDOWN:
+        case NET_EHOSTDOWN:
 			throw NetException("Host is down(" + arg + ')', code);
-        case WSAEHOSTUNREACH:
+        case NET_EHOSTUNREACH:
 			throw NetException("No route to host(" + arg + ')', code);
-#if defined(WSAOS_FAMILY_UNIX)
+#if defined(NET_OS_FAMILY_UNIX)
 		case EPIPE:
 			throw IOException("Broken pipe", code);
 		case EBADF:
@@ -214,3 +157,5 @@ void UdpSocket::error(int code, const std::string& arg)
 			throw IOException(std::to_string(code) + '(' + arg + ')', code);
 	}
 }
+
+NET_END

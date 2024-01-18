@@ -1,7 +1,7 @@
 #include "ClientApplication.h"
 #include <iostream>
 
-ClientApplication::ClientApplication(const SocketAddress& address, const IErrorProcessor::Ptr& errorProcessor)
+ClientApplication::ClientApplication(const net::SocketAddress& address, const IErrorProcessor::Ptr& errorProcessor)
     : _address(address)
     , _socket(address.family(), 0)
     , _senderThread()
@@ -105,7 +105,7 @@ void ClientApplication::sendData(const std::string& data)
 {
     char serverResponse[2]{};
     int serverResponseLen = 0;
-    SocketAddress addr;
+    net::SocketAddress addr;
 
     try {
         _socket.sendBytesTo(data.c_str(), data.size(), _address);

@@ -13,7 +13,7 @@ public:
 
 int main()
 {
-    const SocketAddress address("127.0.0.1", 65535);
+    const net::SocketAddress address("127.0.0.1", 65535);
     ClientApplication app(address, IErrorProcessor::Ptr(new ErrorProcessor));
     app.run();
     return 0;

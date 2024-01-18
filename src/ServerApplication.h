@@ -4,7 +4,7 @@
 class ServerApplication
 {
 public:
-    ServerApplication(const SocketAddress& address);
+    ServerApplication(const net::SocketAddress& address);
 
     void run();
     void stop();
@@ -13,6 +13,6 @@ private:
     void receiverThreadFunc();
 
 private:
-    UdpSocket _socket;
+    net::UdpSocket _socket;
     bool _working;
 };

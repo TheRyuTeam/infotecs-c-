@@ -2,12 +2,14 @@
 #include "net.h"
 #include <string>
 
+NET_START
+
+
 class SocketAddress
 {
 public:
-	SocketAddress();
-    SocketAddress(const sockaddr* addr, int len);
-	SocketAddress(const char* address, unsigned short port);
+    SocketAddress();
+    SocketAddress(const char* addr, unsigned short port);
 	SocketAddress(const std::string& address, unsigned short port);
 	SocketAddress(const SocketAddress&) = default;
 	SocketAddress(SocketAddress&&) noexcept = default;
@@ -18,61 +20,18 @@ public:
 	int family() const noexcept;
 	unsigned short port() const noexcept;
 
-	const sockaddr* addr() const noexcept;
+    const void* addr() const noexcept;
 	int len() const noexcept;
 
 	std::string toString() const;
 
 	int cmp(const SocketAddress& other) const noexcept;
 
-private:
-	sockaddr_in* asV4() const noexcept;
-	sockaddr_in6* asV6() const noexcept;
+    static SocketAddress fromBuiltIn(const void* addr, int len);
 
 private:
-	sockaddr _addr;
+    uint8_t _addr[16];
 };
-
-inline int SocketAddress::family() const noexcept
-{
-	return _addr.sa_family;
-}
-
-inline unsigned short SocketAddress::port() const noexcept
-{
-	return ntohs(family() == AF_INET ? ((sockaddr_in*)&_addr)->sin_port : ((sockaddr_in6*)&_addr)->sin6_port);
-}
-
-inline const sockaddr* SocketAddress::addr() const noexcept
-{
-	return &_addr;
-}
-
-inline int SocketAddress::len() const noexcept
-{
-	switch (family())
-	{
-	case AF_INET:
-		return sizeof(sockaddr_in);
-
-	case AF_INET6:
-		return sizeof(sockaddr_in6);
-
-	default:
-		return -1;
-	}
-}
-
-inline sockaddr_in* SocketAddress::asV4() const noexcept
-{
-	return (sockaddr_in*)&_addr;
-}
-
-inline sockaddr_in6* SocketAddress::asV6() const noexcept
-{
-	return (sockaddr_in6*)&_addr;
-}
-
 
 inline bool operator==(const SocketAddress& lhs, const SocketAddress& rhs)
 {
@@ -103,3 +62,5 @@ inline bool operator<=(const SocketAddress& lhs, const SocketAddress& rhs)
 {
 	return lhs.cmp(rhs) <= 0;
 }
+
+NET_END

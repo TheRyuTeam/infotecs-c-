@@ -1,6 +1,9 @@
 #pragma once
+#include "net.h"
 #include <stdexcept>
 #include <string>
+
+NET_START
 
 class IOException: public std::exception
 {
@@ -89,3 +92,5 @@ SIMPLE_EXCEPTION(TimeoutException, NetException);
 SIMPLE_EXCEPTION(SockOptException, NetException);
 
 #undef SIMPLE_EXCEPTION
+
+NET_END
