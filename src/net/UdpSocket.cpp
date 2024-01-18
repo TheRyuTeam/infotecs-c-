@@ -52,7 +52,7 @@ int UdpSocket::sendBytesTo(const char* data, int size, const SocketAddress& addr
 int UdpSocket::recieveBytesFrom(char* data, int maxSize, SocketAddress& address)
 {
     sockaddr addr{};
-    int len = sizeof(sockaddr);
+    socklen_t len = sizeof(sockaddr);
 	int rc;
 	do {
         rc = ::recvfrom(_socket, data, maxSize, 0, &addr, &len);

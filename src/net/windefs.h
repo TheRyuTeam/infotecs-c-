@@ -16,7 +16,7 @@
 NET_START
 
 using socket_t = UINT_PTR;
-using socklen_t = unsigned int;
+using socklen_t = int;
 
 constexpr socket_t kInvalidSocket = static_cast<socket_t>(~static_cast<socket_t>(0));
 
