@@ -1,11 +1,8 @@
 #pragma once
 #include "net.h"
 
-#ifdef _WIN32
-#   include "windefs.h"
-#else
-#   include "unixdefs.h"
-#endif
+#include "windefs.h"
+#include "unixdefs.h"
 
 NET_START
 

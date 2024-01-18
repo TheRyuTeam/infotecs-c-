@@ -1,4 +1,6 @@
 #pragma once
+#ifdef _WIN32
+
 #include "net.h"
 #ifndef NOMINMAX
 #   define NOMINMAX 1
@@ -21,3 +23,5 @@ using socklen_t = int;
 constexpr socket_t kInvalidSocket = static_cast<socket_t>(~static_cast<socket_t>(0));
 
 NET_END
+
+#endif
