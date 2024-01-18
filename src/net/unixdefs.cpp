@@ -1,7 +1,7 @@
 #include "unixdefs.h"
 #include "net.h"
 
-#ifdef _UNIX
+#ifndef _WIN32
 #include <cerrno>
 
 NET_START
